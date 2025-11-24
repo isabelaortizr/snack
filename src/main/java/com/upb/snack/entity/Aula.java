@@ -1,16 +1,7 @@
 package com.upb.snack.entity;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
 
-@NoArgsConstructor
-@AllArgsConstructor
-
-@Getter
-@Setter
 @Entity
 @Table(name = "aulas")
 public class Aula {
@@ -31,4 +22,65 @@ public class Aula {
     @Column(name = "description", length = 150)
     private String description;
 
+    public Aula() {
+    }
+
+    public Aula(Long id, String aula, String edificio, Integer piso, String description) {
+        this.id = id;
+        this.aula = aula;
+        this.edificio = edificio;
+        this.piso = piso;
+        this.description = description;
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public String getAula() {
+        return aula;
+    }
+
+    public void setAula(String aula) {
+        this.aula = aula;
+    }
+
+    public String getEdificio() {
+        return edificio;
+    }
+
+    public void setEdificio(String edificio) {
+        this.edificio = edificio;
+    }
+
+    public Integer getPiso() {
+        return piso;
+    }
+
+    public void setPiso(Integer piso) {
+        this.piso = piso;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    @Override
+    public String toString() {
+        return "Aula{" +
+                "id=" + id +
+                ", aula='" + aula + '\'' +
+                ", edificio='" + edificio + '\'' +
+                ", piso=" + piso +
+                ", description='" + description + '\'' +
+                '}';
+    }
 }

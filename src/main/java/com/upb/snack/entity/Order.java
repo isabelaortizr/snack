@@ -1,17 +1,9 @@
 package com.upb.snack.entity;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
 
 import java.util.List;
-@NoArgsConstructor
-@AllArgsConstructor
 
-@Getter
-@Setter
 @Entity
 @Table(name = "orders")
 public class Order {
@@ -40,4 +32,85 @@ public class Order {
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<OrderItem> items;
 
+    public Order() {
+    }
+
+    public Order(Long id, User user, Aula aula, String estado, Integer total, String estadoPago, List<OrderItem> items) {
+        this.id = id;
+        this.user = user;
+        this.aula = aula;
+        this.estado = estado;
+        this.total = total;
+        this.estadoPago = estadoPago;
+        this.items = items;
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public User getUser() {
+        return user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
+    }
+
+    public Aula getAula() {
+        return aula;
+    }
+
+    public void setAula(Aula aula) {
+        this.aula = aula;
+    }
+
+    public String getEstado() {
+        return estado;
+    }
+
+    public void setEstado(String estado) {
+        this.estado = estado;
+    }
+
+    public Integer getTotal() {
+        return total;
+    }
+
+    public void setTotal(Integer total) {
+        this.total = total;
+    }
+
+    public String getEstadoPago() {
+        return estadoPago;
+    }
+
+    public void setEstadoPago(String estadoPago) {
+        this.estadoPago = estadoPago;
+    }
+
+    public List<OrderItem> getItems() {
+        return items;
+    }
+
+    public void setItems(List<OrderItem> items) {
+        this.items = items;
+    }
+
+    @Override
+    public String toString() {
+        return "Order{" +
+                "id=" + id +
+                ", user=" + (user != null ? user.getId() : null) +
+                ", aula=" + (aula != null ? aula.getId() : null) +
+                ", estado='" + estado + '\'' +
+                ", total=" + total +
+                ", estadoPago='" + estadoPago + '\'' +
+                ", items=" + (items != null ? items.size() : 0) + " items" +
+                '}';
+    }
 }

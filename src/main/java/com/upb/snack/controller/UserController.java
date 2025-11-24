@@ -2,6 +2,8 @@ package com.upb.snack.controller;
 
 import com.upb.snack.entity.User;
 import com.upb.snack.service.UserService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -18,6 +20,8 @@ import java.util.List;
 @RestController
 @RequestMapping("/users")
 public class UserController {
+
+    private static final Logger log = LoggerFactory.getLogger(UserController.class);
 
     private final UserService userService;
 
@@ -38,11 +42,14 @@ public class UserController {
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public User createUser(@RequestBody User user) {
+        log.info("Creando usuario con payload: {}", user);
+        log.info("Payload recibido → id={}, nombre={}", user.getId(), user.getNombre());
         return userService.createUser(user);
     }
 
     @PutMapping("/{id}")
     public User updateUser(@PathVariable Long id, @RequestBody User user) {
+        log.info("Actualizando usuario {} con payload: {}", id, user);
         return userService.updateUser(id, user);
     }
 
