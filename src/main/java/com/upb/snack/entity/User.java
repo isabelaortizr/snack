@@ -1,5 +1,7 @@
 package com.upb.snack.entity;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -14,14 +16,20 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(nullable = false)
     private String nombre;
+
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
+    @Column(nullable = false)
+    private String password;
 
     public User() {
     }
 
-    public User(Long id, String nombre) {
+    public User(Long id, String nombre, String password) {
         this.id = id;
         this.nombre = nombre;
+        this.password = password;
     }
 
     public Long getId() {
@@ -38,6 +46,14 @@ public class User {
 
     public void setNombre(String nombre) {
         this.nombre = nombre;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
     }
 
     @Override
