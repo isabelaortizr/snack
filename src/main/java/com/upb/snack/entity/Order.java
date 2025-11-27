@@ -2,11 +2,13 @@ package com.upb.snack.entity;
 
 import jakarta.persistence.*;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Entity
 @Table(name = "orders")
 public class Order {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id", nullable = false)
@@ -29,13 +31,22 @@ public class Order {
     @Column(name = "estado_pago", nullable = false, length = 20)
     private String estadoPago;
 
+    @Column(name = "created_at", nullable = false)
+    private LocalDateTime createdAt;
+
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<OrderItem> items;
 
     public Order() {
     }
 
-    public Order(Long id, User user, Aula aula, String estado, Integer total, String estadoPago, List<OrderItem> items) {
+    public Order(Long id,
+                 User user,
+                 Aula aula,
+                 String estado,
+                 Integer total,
+                 String estadoPago,
+                 List<OrderItem> items) {
         this.id = id;
         this.user = user;
         this.aula = aula;
@@ -43,6 +54,19 @@ public class Order {
         this.total = total;
         this.estadoPago = estadoPago;
         this.items = items;
+    }
+
+    @PrePersist
+    public void prePersist() {
+        if (createdAt == null) {
+            createdAt = LocalDateTime.now();
+        }
+        if (estado == null || estado.isBlank()) {
+            estado = "PENDIENTE";
+        }
+        if (estadoPago == null || estadoPago.isBlank()) {
+            estadoPago = "PENDIENTE";
+        }
     }
 
     public Long getId() {
@@ -93,6 +117,14 @@ public class Order {
         this.estadoPago = estadoPago;
     }
 
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
+    }
+
     public List<OrderItem> getItems() {
         return items;
     }
@@ -110,6 +142,7 @@ public class Order {
                 ", estado='" + estado + '\'' +
                 ", total=" + total +
                 ", estadoPago='" + estadoPago + '\'' +
+                ", createdAt=" + createdAt +
                 ", items=" + (items != null ? items.size() : 0) + " items" +
                 '}';
     }

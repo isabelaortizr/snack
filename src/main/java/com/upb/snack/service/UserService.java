@@ -32,8 +32,13 @@ public class UserService {
 
     public User createUser(User user) {
         User safeUser = Objects.requireNonNull(user, "El usuario es obligatorio");
-        String rawPassword = Objects.requireNonNull(safeUser.getPassword(), "La contraseña es obligatoria");
+        String rawPassword = Objects.requireNonNull(safeUser.getPassword(), "La contrase?a es obligatoria");
         safeUser.setPassword(passwordEncoder.encode(rawPassword));
+
+        if (safeUser.getRol() == null || safeUser.getRol().isBlank()) {
+            safeUser.setRol("USER");
+        }
+
         return userRepository.save(safeUser);
     }
 
@@ -44,8 +49,13 @@ public class UserService {
                 .orElseThrow(() -> new EntityNotFoundException("Usuario no encontrado: " + id));
 
         existingUser.setNombre(safeUser.getNombre());
+
         if (safeUser.getPassword() != null && !safeUser.getPassword().isBlank()) {
             existingUser.setPassword(passwordEncoder.encode(safeUser.getPassword()));
+        }
+
+        if (safeUser.getRol() != null && !safeUser.getRol().isBlank()) {
+            existingUser.setRol(safeUser.getRol());
         }
 
         return userRepository.save(existingUser);
@@ -61,12 +71,12 @@ public class UserService {
 
     public User authenticate(Long id, String password) {
         long safeId = requireId(id);
-        String rawPassword = Objects.requireNonNull(password, "La contraseña es obligatoria");
+        String rawPassword = Objects.requireNonNull(password, "La contrase?a es obligatoria");
         User user = userRepository.findById(safeId)
                 .orElseThrow(() -> new EntityNotFoundException("Usuario no encontrado: " + id));
 
         if (!passwordEncoder.matches(rawPassword, user.getPassword())) {
-            throw new IllegalArgumentException("Credenciales inválidas");
+            throw new IllegalArgumentException("Credenciales inv?lidas");
         }
 
         return user;
@@ -76,4 +86,5 @@ public class UserService {
         return Objects.requireNonNull(id, "El id del usuario es obligatorio");
     }
 }
+
 

@@ -3,8 +3,6 @@ package com.upb.snack.entity;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 
@@ -13,7 +11,6 @@ import jakarta.persistence.Table;
 public class User {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @Column(nullable = false)
@@ -23,13 +20,21 @@ public class User {
     @Column(nullable = false)
     private String password;
 
+    @Column(nullable = false)
+    private String rol = "USER"; // USER o ADMIN
+
     public User() {
     }
 
     public User(Long id, String nombre, String password) {
+        this(id, nombre, password, "USER");
+    }
+
+    public User(Long id, String nombre, String password, String rol) {
         this.id = id;
         this.nombre = nombre;
         this.password = password;
+        this.rol = rol != null ? rol : "USER";
     }
 
     public Long getId() {
@@ -56,11 +61,21 @@ public class User {
         this.password = password;
     }
 
+    public String getRol() {
+        return rol;
+    }
+
+    public void setRol(String rol) {
+        this.rol = (rol == null || rol.isBlank()) ? "USER" : rol;
+    }
+
     @Override
     public String toString() {
         return "User{" +
                 "id=" + id +
                 ", nombre='" + nombre + '\'' +
+                ", rol='" + rol + '\'' +
                 '}';
     }
 }
+

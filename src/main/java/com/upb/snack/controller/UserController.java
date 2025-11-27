@@ -43,7 +43,7 @@ public class UserController {
     @ResponseStatus(HttpStatus.CREATED)
     public User createUser(@RequestBody User user) {
         log.info("Creando usuario con payload: {}", user);
-        log.info("Payload recibido → id={}, nombre={}", user.getId(), user.getNombre());
+        log.info("Payload recibido ??? id={}, nombre={}", user.getId(), user.getNombre());
         return userService.createUser(user);
     }
 
@@ -59,4 +59,5 @@ public class UserController {
         userService.deleteUser(id);
     }
 }
+
 

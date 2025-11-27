@@ -5,37 +5,29 @@ import jakarta.persistence.*;
 @Entity
 @Table(name = "menu")
 public class Menu {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id", nullable = false)
     private Long id;
 
-    @Column(name = "nombre_producto", nullable = false, length = 100)
+    @Column(name = "nombre_producto", nullable = false)
     private String nombreProducto;
 
-    @Column(name = "descripcion")
+    @Column(nullable = false)
+    private Double precio;
+
+    // ???? NUEVO CAMPO STOCK
+    @Column(nullable = false)
+    private Integer stock;
+
     private String descripcion;
-
-    @Column(name = "precio", nullable = false)
-    private Integer precio;
-
-    @Column(name = "estado", nullable = false)
-    private Boolean estado = false;
 
     @Column(name = "image_url")
     private String imageUrl;
 
-    public Menu() {
-    }
+    private String estado;
 
-    public Menu(Long id, String nombreProducto, String descripcion, Integer precio, Boolean estado, String imageUrl) {
-        this.id = id;
-        this.nombreProducto = nombreProducto;
-        this.descripcion = descripcion;
-        this.precio = precio;
-        this.estado = estado;
-        this.imageUrl = imageUrl;
-    }
+    // --- getters y setters ---
 
     public Long getId() {
         return id;
@@ -53,28 +45,29 @@ public class Menu {
         this.nombreProducto = nombreProducto;
     }
 
+    public Double getPrecio() {
+        return precio;
+    }
+
+    public void setPrecio(Double precio) {
+        this.precio = precio;
+    }
+
+    // ???? GET/SET DE STOCK
+    public Integer getStock() {
+        return stock;
+    }
+
+    public void setStock(Integer stock) {
+        this.stock = stock;
+    }
+
     public String getDescripcion() {
         return descripcion;
     }
 
     public void setDescripcion(String descripcion) {
         this.descripcion = descripcion;
-    }
-
-    public Integer getPrecio() {
-        return precio;
-    }
-
-    public void setPrecio(Integer precio) {
-        this.precio = precio;
-    }
-
-    public Boolean getEstado() {
-        return estado;
-    }
-
-    public void setEstado(Boolean estado) {
-        this.estado = estado;
     }
 
     public String getImageUrl() {
@@ -85,15 +78,12 @@ public class Menu {
         this.imageUrl = imageUrl;
     }
 
-    @Override
-    public String toString() {
-        return "Menu{" +
-                "id=" + id +
-                ", nombreProducto='" + nombreProducto + '\'' +
-                ", descripcion='" + descripcion + '\'' +
-                ", precio=" + precio +
-                ", estado=" + estado +
-                ", imageUrl='" + imageUrl + '\'' +
-                '}';
+    public String getEstado() {
+        return estado;
+    }
+
+    public void setEstado(String estado) {
+        this.estado = estado;
     }
 }
+

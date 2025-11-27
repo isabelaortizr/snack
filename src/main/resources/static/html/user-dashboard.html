@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8" />
+    <title>Snack - Panel Usuario</title>
+    <link rel="stylesheet" href="/css/user-dashboard.css" />
+</head>
+<body>
+<!-- TOPBAR tipo Dynamic Island -->
+<header class="user-topbar">
+    <div class="user-topbar-island">
+        <div class="island-left">
+            <div class="island-logo">SNACK</div>
+        </div>
+
+        <div class="island-center">
+            <button type="button" class="island-link" id="viewOrdersBtn">
+                Ver mis pedidos
+            </button>
+        </div>
+
+        <div class="island-right">
+            <button type="button" class="island-cart" id="cartButton">
+                🛒 Carrito
+                <span id="cartBadge">0</span>
+            </button>
+            <a href="/html/login.html" class="island-logout">Cerrar sesión</a>
+        </div>
+    </div>
+</header>
+
+<main class="user-main">
+    <section class="user-hero">
+        <h1 class="user-hero-title">Haz tus pedidos y recíbelos en tu aula.</h1>
+        <p class="user-hero-text">
+            Elige tus snacks favoritos del menú del día y nosotros los llevamos.
+        </p>
+    </section>
+
+    <section class="user-shell">
+        <!-- SOLO PANEL MENÚ (bloque "Tu pedido" eliminado) -->
+        <article class="menu-panel">
+            <header class="panel-header">
+                <div>
+                    <h2 class="panel-title">Menú del día</h2>
+                    <p class="panel-subtitle">
+                        Productos activos disponibles para hoy.
+                    </p>
+                </div>
+                <div class="panel-subtitle">Productos disponibles</div>
+            </header>
+
+            <div id="productList" class="product-list">
+                <!-- Aquí se pintan los productos del menú -->
+            </div>
+        </article>
+    </section>
+</main>
+
+<!-- MODAL SELECCIÓN DE AULA -->
+<div id="classModal" class="modal-backdrop" hidden>
+    <div class="modal">
+        <h3 class="modal-title">Selecciona tu aula</h3>
+        <p class="modal-subtitle">
+            Elige el edificio, piso y aula donde quieres recibir tu pedido.
+        </p>
+
+        <div class="modal-section">
+            <h4 class="modal-section-title">Edificio</h4>
+            <div id="modalBuildingList" class="pill-group">
+                <!-- Botones de edificio -->
+            </div>
+        </div>
+
+        <div class="modal-section">
+            <h4 class="modal-section-title">Pisos y aulas</h4>
+            <div id="modalFloorList" class="modal-floor-list">
+                <!-- Pisos + aulas -->
+            </div>
+        </div>
+
+        <p id="modalSelectedLabel" class="modal-selected"></p>
+
+        <button
+                type="button"
+                class="btn btn-primary"
+                id="confirmClassBtn"
+                disabled
+        >
+            Confirmar aula
+        </button>
+    </div>
+</div>
+
+<!-- MODAL CARRITO CON - 0 + -->
+<div id="cartModal" class="modal-backdrop" hidden>
+    <div class="modal modal--cart">
+        <div class="modal-header-row">
+            <h3 class="modal-title">Tu pedido</h3>
+            <button type="button" class="modal-close-btn" id="closeCartModalBtn">
+                ×
+            </button>
+        </div>
+        <p class="modal-subtitle">
+            Ajusta cantidades y revisa tu pedido antes de enviarlo.
+        </p>
+
+        <ul id="cartModalList" class="cart-modal-list">
+            <!-- Items del carrito en modal -->
+        </ul>
+
+        <div class="cart-modal-footer">
+            <div class="cart-total-row">
+                <span>Total</span>
+                <span>Bs <span id="cartModalTotal">0.00</span></span>
+            </div>
+            <button
+                    type="button"
+                    class="btn btn-primary"
+                    id="cartModalCheckoutBtn"
+            >
+                Pedir
+            </button>
+        </div>
+
+        <p id="cartModalStatus" class="status-message" hidden></p>
+    </div>
+</div>
+
+<script src="/services/user-dashboard.js"></script>
+</body>
+</html>

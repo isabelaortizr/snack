@@ -1,0 +1,134 @@
+﻿<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8" />
+    <title>Snack - Login</title>
+    <link rel="stylesheet" href="/css/login.css" />
+</head>
+<body>
+<div class="entry-root">
+    <div class="entry-panel">
+        <!-- Lado izquierdo: branding / descripción -->
+        <section class="entry-info">
+            <h1 class="entry-title">SNACK</h1>
+            <p class="entry-text">
+                Come lo que quieras en cualquier parte de la universidad. Tu lo pides nosotros lo llevamos
+            </p>
+        </section>
+
+        <!-- Lado derecho: contenedor con login/registro -->
+        <section class="entry-login-shell">
+            <div class="login-card">
+                <div class="brand">
+                    <div class="brand-logo">SNACK</div>
+                    <p class="brand-subtitle">Pedidos calientes directo a tu aula</p>
+                </div>
+
+                <!-- FORMULARIO DE LOGIN -->
+                <form id="loginForm" class="login-form">
+                    <h1 class="login-title">Inicia sesión</h1>
+
+                    <div class="role-toggle">
+                        <button type="button" class="role-btn active" data-role="user">
+                            Usuario
+                        </button>
+                        <button type="button" class="role-btn" data-role="admin">
+                            Admin
+                        </button>
+                    </div>
+
+                    <input
+                            type="number"
+                            name="id"
+                            placeholder="ID de usuario"
+                            class="input-field"
+                            required
+                    />
+
+                    <input
+                            type="password"
+                            name="password"
+                            placeholder="Contraseña"
+                            class="input-field"
+                            required
+                    />
+
+                    <p class="helper-text">
+                        Usa tu ID asignado y tu contraseña para entrar.
+                    </p>
+
+                    <button type="submit" class="primary-btn">
+                        Entrar
+                    </button>
+
+                    <p id="errorMessage" class="error-message" hidden></p>
+
+                    <p class="switch-text">
+                        ¿No tienes cuenta?
+                        <button type="button" id="showRegisterBtn" class="link-btn">
+                            Regístrate
+                        </button>
+                    </p>
+                </form>
+
+                <!-- FORMULARIO DE REGISTRO -->
+                <!-- FORMULARIO DE REGISTRO -->
+                <form id="registerForm" class="login-form" hidden>
+                    <button type="button" id="backToLoginBtn" class="back-btn">
+                        ← Volver al inicio de sesión
+                    </button>
+
+                    <h1 class="login-title">Crear cuenta</h1>
+
+                    <input
+                            type="number"
+                            name="codigoEstudiante"
+                            placeholder="Código de estudiante"
+                            class="input-field"
+                            required
+                    />
+
+                    <input
+                            type="text"
+                            name="nombre"
+                            placeholder="Nombre completo"
+                            class="input-field"
+                            required
+                    />
+
+                    <input
+                            type="password"
+                            name="password"
+                            placeholder="Contraseña"
+                            class="input-field"
+                            required
+                    />
+
+                    <input
+                            type="password"
+                            name="confirmPassword"
+                            placeholder="Confirmar contraseña"
+                            class="input-field"
+                            required
+                    />
+
+                    <p class="helper-text">
+                        Usa tu código de estudiante y una contraseña para registrarte.
+                    </p>
+
+                    <button type="submit" class="primary-btn">
+                        Registrarme
+                    </button>
+
+                    <p id="registerMessage" class="error-message" hidden></p>
+                </form>
+
+            </div>
+        </section>
+    </div>
+</div>
+
+<script src="/services/login.js"></script>
+<script src="/services/register.js"></script>
+</body>
+</html>

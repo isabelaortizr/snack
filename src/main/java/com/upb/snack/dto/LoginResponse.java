@@ -4,15 +4,15 @@ public class LoginResponse {
 
     private Long id;
     private String nombre;
-    private String message;
+    private String rol; // "USER" o "ADMIN"
 
     public LoginResponse() {
     }
 
-    public LoginResponse(Long id, String nombre, String message) {
+    public LoginResponse(Long id, String nombre, String rol) {
         this.id = id;
         this.nombre = nombre;
-        this.message = message;
+        this.rol = rol;
     }
 
     public Long getId() {
@@ -31,12 +31,12 @@ public class LoginResponse {
         this.nombre = nombre;
     }
 
-    public String getMessage() {
-        return message;
+    public String getRol() {
+        return rol;
     }
 
-    public void setMessage(String message) {
-        this.message = message;
+    public void setRol(String rol) {
+        this.rol = rol;
     }
 }
 

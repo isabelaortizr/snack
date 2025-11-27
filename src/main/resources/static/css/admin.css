@@ -1,0 +1,270 @@
+body {
+  margin: 0;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  background-color: #f7efe3;
+}
+
+/* Layout general */
+.admin-layout {
+  display: flex;
+  min-height: 100vh;
+}
+
+/* Sidebar */
+.admin-sidebar {
+  width: 260px;
+  background: #2b2b36;
+  color: #fff;
+  display: flex;
+  flex-direction: column;
+  padding: 24px 20px;
+}
+
+.admin-logo {
+  font-weight: 800;
+  font-size: 24px;
+  letter-spacing: 2px;
+  margin-bottom: 24px;
+}
+
+.admin-section-title {
+  font-size: 12px;
+  text-transform: uppercase;
+  opacity: 0.6;
+  margin-bottom: 8px;
+}
+
+.admin-nav {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 24px 0;
+}
+
+.admin-nav li {
+  margin-bottom: 8px;
+}
+
+.admin-nav button {
+  width: 100%;
+  text-align: left;
+  border: none;
+  padding: 10px 12px;
+  border-radius: 8px;
+  background: transparent;
+  color: #f7f7ff;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.admin-nav button:hover,
+.admin-nav button.active {
+  background: #e63a3a;
+}
+
+.logout-link {
+  margin-top: auto;
+  font-size: 13px;
+  color: #ffdddd;
+  text-decoration: none;
+}
+
+.logout-link:hover {
+  text-decoration: underline;
+}
+
+/* Contenido principal */
+.admin-content {
+  flex: 1;
+  padding: 24px 32px;
+}
+
+.admin-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+}
+
+.admin-header h1 {
+  margin: 0;
+  font-size: 24px;
+}
+
+.admin-card {
+  background: #fff;
+  border-radius: 16px;
+  padding: 20px 24px;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+}
+
+/* Header dentro de la card de menú del día */
+.admin-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+/* Grid de formularios */
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.form-grid input,
+.form-grid textarea {
+  padding: 8px 10px;
+  border-radius: 8px;
+  border: 1px solid #ddd;
+  font-size: 14px;
+}
+
+/* Tabla de productos */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 12px;
+  font-size: 14px;
+}
+
+th,
+td {
+  padding: 8px 10px;
+  border-bottom: 1px solid #eee;
+}
+
+th {
+  text-align: left;
+  background: #faf5ef;
+}
+
+.small-text {
+  font-size: 12px;
+  opacity: 0.7;
+}
+
+/* Botones */
+.btn-primary {
+  padding: 10px 16px;
+  border-radius: 999px;
+  border: none;
+  background: linear-gradient(90deg, #ff4b4b, #e63a3a);
+  color: #fff;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.btn-primary:hover {
+  opacity: 0.9;
+}
+
+.btn-secondary,
+.btn-ghost {
+  padding: 10px 16px;
+  border-radius: 999px;
+  border: 1px solid #ddd;
+  background: #fff;
+  color: #333;
+  cursor: pointer;
+  font-weight: 500;
+}
+
+.btn-secondary:hover,
+.btn-ghost:hover {
+  background: #f5f5f5;
+}
+
+/* ---------- MODAL (Nuevo producto / Actualiza menú) ---------- */
+
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.35);
+  z-index: 40;
+}
+
+.modal {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 50;
+}
+
+.modal-content {
+  background: #ffffff;
+  border-radius: 16px;
+  padding: 20px 24px;
+  box-shadow: 0 20px 40px rgba(0,0,0,0.25);
+  width: min(640px, 90vw);
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+.modal-content h2 {
+  margin-top: 0;
+  margin-bottom: 12px;
+}
+
+/* grid del formulario del modal (incluye stock) */
+.modal-content .form-grid {
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+}
+
+.modal-actions {
+  margin-top: 12px;
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+/* Utilidad */
+.hidden {
+  display: none;
+}
+
+/* Imágenes pequeñas en la tabla del menú del día */
+#menu-list img,
+.menu-image,
+.product-thumb {
+  width: 40px;        /* ancho pequeño */
+  height: 40px;       /* alto pequeño */
+  object-fit: cover;  /* recorta sin deformar */
+  border-radius: 8px; /* esquinas redondeadas (opcional) */
+  display: block;
+}
+
+/* Toggle de estado (Activo / Inactivo) */
+.estado-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+}
+
+.estado-toggle input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  cursor: pointer;
+}
+.menu-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.btn-sm {
+  padding: 4px 10px;
+  font-size: 12px;
+}
+
+.estado-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+}
