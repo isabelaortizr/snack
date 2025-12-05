@@ -15,7 +15,6 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 
@@ -41,6 +40,15 @@ public class OrderService {
 
     public List<Order> getAllOrders() {
         return orderRepository.findAll();
+    }
+
+    /**
+     * Devuelve todos los pedidos con un estado concreto, ordenados por fecha (asc).
+     * Ej: "PENDIENTE" para la vista de pedidos pendientes del admin.
+     */
+    public List<Order> getOrdersByEstado(String estado) {
+        String safeEstado = Objects.requireNonNull(estado, "estado es obligatorio");
+        return orderRepository.findByEstadoIgnoreCaseOrderByCreatedAtAsc(safeEstado);
     }
 
     /**
@@ -129,12 +137,8 @@ public class OrderService {
     public Order getCurrentOrderForUser(Long userId) {
         Long safeUserId = Objects.requireNonNull(userId, "userId es obligatorio");
 
-        // Para no tocar el repository, usamos findAll() y filtramos en memoria
-        return orderRepository.findAll().stream()
-                .filter(o -> o.getUser() != null && safeUserId.equals(o.getUser().getId()))
-                .filter(o -> "PENDIENTE".equalsIgnoreCase(o.getEstado()))
-                .sorted(Comparator.comparing(Order::getCreatedAt).reversed())
-                .findFirst()
+        return orderRepository
+                .findFirstByUser_IdAndEstadoOrderByCreatedAtDesc(safeUserId, "PENDIENTE")
                 .orElse(null);
     }
 
@@ -167,8 +171,6 @@ public class OrderService {
     public int autoCancelOldPendingOrders(int maxPendingMinutes) {
         LocalDateTime limite = LocalDateTime.now().minusMinutes(maxPendingMinutes);
 
-        // Este método sí requiere que lo tengas en OrderRepository:
-        // List<Order> findByEstadoAndCreatedAtBefore(String estado, LocalDateTime before);
         List<Order> pendientesViejos =
                 orderRepository.findByEstadoAndCreatedAtBefore("PENDIENTE", limite);
 
@@ -183,5 +185,25 @@ public class OrderService {
 
         orderRepository.saveAll(pendientesViejos);
         return pendientesViejos.size();
+    }
+
+    /**
+     * Actualiza el estado (y opcionalmente estadoPago) de un pedido.
+     * Usado por el admin para mover PENDIENTE → EN_PREPARACION → LISTO → ENTREGADO / CANCELADO.
+     */
+    public Order updateOrderStatus(Long orderId, String estado, String estadoPago) {
+        Long safeOrderId = Objects.requireNonNull(orderId, "orderId es obligatorio");
+        String safeEstado = Objects.requireNonNull(estado, "estado es obligatorio");
+
+        Order order = orderRepository.findById(safeOrderId)
+                .orElseThrow(() -> new EntityNotFoundException("Pedido no encontrado: " + orderId));
+
+        order.setEstado(safeEstado);
+
+        if (estadoPago != null && !estadoPago.isBlank()) {
+            order.setEstadoPago(estadoPago);
+        }
+
+        return orderRepository.save(order);
     }
 }

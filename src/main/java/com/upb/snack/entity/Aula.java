@@ -1,10 +1,13 @@
 package com.upb.snack.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 @Entity
 @Table(name = "aulas")
 public class Aula {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id", nullable = false)
@@ -84,4 +87,3 @@ public class Aula {
                 '}';
     }
 }
-

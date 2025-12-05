@@ -3,6 +3,7 @@
 const API_BASE = "http://localhost:8181";
 
 let currentMenuItems = []; // cache del menú actual
+let currentOrders = [];    // cache de pedidos actuales
 
 document.addEventListener("DOMContentLoaded", () => {
   const titleEl = document.getElementById("admin-title");
@@ -23,8 +24,317 @@ document.addEventListener("DOMContentLoaded", () => {
   function showPedidosView() {
     titleEl.textContent = "Pedidos pendientes";
     viewEl.innerHTML = `
-      <p>Aquí se mostrarán los pedidos pendientes para gestionar.</p>
+      <div class="admin-card-header">
+        <div>
+          <h2>Pedidos pendientes</h2>
+          <p class="small-text">
+            Aquí puedes ver los pedidos pendientes y actualizar su estado.
+          </p>
+        </div>
+      </div>
+
+      <div id="orders-list">
+        <p class="small-text">Cargando pedidos...</p>
+      </div>
+
+      <div id="order-modal-container" class="hidden"></div>
     `;
+
+    const listEl = document.getElementById("orders-list");
+    loadOrders(listEl);
+  }
+
+  // ---------- CARGAR LISTA DE PEDIDOS PENDIENTES ----------
+  async function loadOrders(container) {
+    try {
+      // Endpoint sugerido: GET /orders/pending
+      const res = await fetch(`${API_BASE}/orders/pending`);
+
+      if (!res.ok) {
+        container.innerHTML = "<p>No se pudieron cargar los pedidos.</p>";
+        return;
+      }
+
+      const orders = await res.json();
+      currentOrders = orders || [];
+
+      if (!orders || orders.length === 0) {
+        container.innerHTML =
+          "<p class='small-text'>No hay pedidos pendientes en este momento.</p>";
+        return;
+      }
+
+      const rows = orders
+        .map((order) => {
+          const id = order.id ?? "";
+
+          const userLabel =
+            (order.user &&
+              (order.user.username ||
+                order.user.nombre ||
+                order.user.email)) ||
+            (order.user && `ID ${order.user.id}`) ||
+            "-";
+
+          const aulaLabel =
+            (order.aula &&
+              (order.aula.codigo ||
+                order.aula.nombre)) ||
+            (order.aula && `ID ${order.aula.id}`) ||
+            "-";
+
+          const fecha = order.createdAt
+            ? order.createdAt.toString().replace("T", " ").substring(0, 16)
+            : "-";
+
+          const total = order.total ?? 0;
+          const estado = order.estado || "PENDIENTE";
+          const estadoPago = order.estadoPago || "PENDIENTE";
+
+          // ====== NUEVA LÓGICA DEL SELECT DE ESTADO ======
+          // Solo permitir cambiar desde PENDIENTE → EN_PREPARACION o CANCELADO
+          let optionsHtml = "";
+
+          if (estado === "PENDIENTE") {
+            // Placeholder con el estado actual (no seleccionable)
+            optionsHtml += `
+              <option value="${estado}" selected disabled hidden>
+                ${estado.replace("_", " ")}
+              </option>
+            `;
+
+            ["EN_PREPARACION", "CANCELADO"].forEach((st) => {
+              optionsHtml += `
+                <option value="${st}">
+                  ${st.replace("_", " ")}
+                </option>
+              `;
+            });
+          } else {
+            // Si ya no está pendiente, solo mostrar el estado actual
+            optionsHtml += `
+              <option value="${estado}" selected>
+                ${estado.replace("_", " ")}
+              </option>
+            `;
+          }
+          // ================================================
+
+          return `
+            <tr data-id="${id}">
+              <td>${id}</td>
+              <td>${userLabel}</td>
+              <td>${aulaLabel}</td>
+              <td>${fecha}</td>
+              <td>${total} Bs</td>
+              <td>${estado}</td>
+              <td>${estadoPago}</td>
+              <td>
+                <div class="menu-actions">
+                  <button
+                    type="button"
+                    class="btn-ghost btn-sm js-order-info"
+                    data-id="${id}"
+                  >
+                    Ver detalle
+                  </button>
+                  <select
+                    class="js-order-status btn-sm"
+                    data-id="${id}"
+                    ${estado !== "PENDIENTE" ? "disabled" : ""}
+                  >
+                    ${optionsHtml}
+                  </select>
+                </div>
+              </td>
+            </tr>
+          `;
+        })
+        .join("");
+
+      container.innerHTML = `
+        <table>
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Usuario</th>
+              <th>Aula</th>
+              <th>Creado</th>
+              <th>Total</th>
+              <th>Estado</th>
+              <th>Pago</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${rows}
+          </tbody>
+        </table>
+      `;
+
+      attachOrderRowHandlers(container);
+    } catch (err) {
+      console.error(err);
+      container.innerHTML = "<p>Error de conexión al cargar pedidos.</p>";
+    }
+  }
+
+  // Añadir handlers a botones de pedidos
+  function attachOrderRowHandlers(container) {
+    const modalContainer = document.getElementById("order-modal-container");
+
+    // Botón VER DETALLE
+    container.querySelectorAll(".js-order-info").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const id = Number(btn.dataset.id);
+        const order = currentOrders.find((o) => o.id === id);
+        if (!order) return;
+        renderOrderModal(modalContainer, order);
+      });
+    });
+
+    // Selector de ESTADO
+    container.querySelectorAll(".js-order-status").forEach((sel) => {
+      sel.addEventListener("change", () => {
+        const id = Number(sel.dataset.id);
+        const newEstado = sel.value;
+        updateOrderStatus(id, newEstado, sel);
+      });
+    });
+  }
+
+  // ---------- MODAL DETALLE DE PEDIDO ----------
+  function renderOrderModal(container, order) {
+    const userLabel =
+      (order.user &&
+        (order.user.username ||
+          order.user.nombre ||
+          order.user.email)) ||
+      (order.user && `ID ${order.user.id}`) ||
+      "-";
+
+    const aulaLabel =
+      (order.aula &&
+        (order.aula.codigo ||
+          order.aula.nombre)) ||
+      (order.aula && `ID ${order.aula.id}`) ||
+      "-";
+
+    const fecha = order.createdAt
+      ? order.createdAt.toString().replace("T", " ").substring(0, 16)
+      : "-";
+
+    const items = order.items || [];
+
+    const rows = items
+      .map((it) => {
+        const prod =
+          (it.menuItem &&
+            (it.menuItem.nombreProducto ||
+              it.menuItem.nombre)) ||
+          (it.menuItem && `ID ${it.menuItem.id}`) ||
+          "-";
+        const cant = it.cantidad ?? 0;
+        const precio = it.precioItem ?? 0;
+        const subtotal = it.subtotal ?? 0;
+
+        return `
+          <tr>
+            <td>${prod}</td>
+            <td>${cant}</td>
+            <td>${precio} Bs</td>
+            <td>${subtotal} Bs</td>
+          </tr>
+        `;
+      })
+      .join("");
+
+    container.innerHTML = `
+      <div class="modal-backdrop">
+        <div class="modal">
+          <div class="modal-content">
+            <h2>Pedido #${order.id}</h2>
+            <p class="small-text">
+              Usuario: <strong>${userLabel}</strong><br/>
+              Aula: <strong>${aulaLabel}</strong><br/>
+              Creado: <strong>${fecha}</strong><br/>
+              Estado: <strong>${order.estado}</strong> |
+              Pago: <strong>${order.estadoPago}</strong>
+            </p>
+
+            <h3>Items</h3>
+            ${
+              items.length === 0
+                ? "<p class='small-text'>Este pedido no tiene items.</p>"
+                : `
+                  <table>
+                    <thead>
+                      <tr>
+                        <th>Producto</th>
+                        <th>Cant.</th>
+                        <th>Precio</th>
+                        <th>Subtotal</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      ${rows}
+                    </tbody>
+                  </table>
+                `
+            }
+
+            <p style="margin-top: 12px;">
+              Total: <strong>${order.total ?? 0} Bs</strong>
+            </p>
+
+            <div class="modal-actions">
+              <button type="button" id="btn-close-order-modal" class="btn-secondary">
+                Cerrar
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    `;
+
+    container.classList.remove("hidden");
+
+    const btnClose = document.getElementById("btn-close-order-modal");
+    btnClose.addEventListener("click", () => {
+      container.classList.add("hidden");
+      container.innerHTML = "";
+    });
+  }
+
+  // ---------- ACTUALIZAR ESTADO DEL PEDIDO ----------
+  async function updateOrderStatus(orderId, newEstado, selectEl) {
+    try {
+      const payload = { estado: newEstado };
+
+      const res = await fetch(`${API_BASE}/orders/${orderId}/estado`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+
+      if (!res.ok) {
+        const txt = await res.text().catch(() => "");
+        console.error("Error al actualizar estado de pedido:", res.status, txt);
+        alert("No se pudo actualizar el estado del pedido.");
+        return;
+      }
+
+      const updated = await res.json();
+
+      // actualizar cache
+      const idx = currentOrders.findIndex((o) => o.id === orderId);
+      if (idx !== -1) {
+        currentOrders[idx] = updated;
+      }
+    } catch (err) {
+      console.error(err);
+      alert("Error de conexión al actualizar el estado del pedido.");
+    }
   }
 
   // ---------- VISTA: MENÚ DEL DÍA ----------
@@ -143,7 +453,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // Prefill en modo edición
     if (isEdit) {
-      form.nombre.value = existingItem.nombreProducto || existingItem.nombre || "";
+      form.nombre.value =
+        existingItem.nombreProducto || existingItem.nombre || "";
       form.precio.value = existingItem.precio ?? "";
       form.stock.value = existingItem.stock ?? 0;
       form.descripcion.value = existingItem.descripcion || "";

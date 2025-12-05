@@ -1,7 +1,9 @@
 package com.upb.snack.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 
+@JsonIgnoreProperties({ "hibernateLazyInitializer", "handler" })
 @Entity
 @Table(name = "menu")
 public class Menu {
@@ -16,7 +18,7 @@ public class Menu {
     @Column(nullable = false)
     private Double precio;
 
-    // ???? NUEVO CAMPO STOCK
+    // Campo STOCK
     @Column(nullable = false)
     private Integer stock;
 
@@ -53,7 +55,6 @@ public class Menu {
         this.precio = precio;
     }
 
-    // ???? GET/SET DE STOCK
     public Integer getStock() {
         return stock;
     }
@@ -86,4 +87,3 @@ public class Menu {
         this.estado = estado;
     }
 }
-

@@ -14,4 +14,7 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
 
     // Para buscar pendientes viejos (para auto-cancelar)
     List<Order> findByEstadoAndCreatedAtBefore(String estado, LocalDateTime limite);
+
+    // Para listar pedidos por estado (ej: PENDIENTE) ordenados por fecha
+    List<Order> findByEstadoIgnoreCaseOrderByCreatedAtAsc(String estado);
 }

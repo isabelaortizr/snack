@@ -1,8 +1,10 @@
 package com.upb.snack.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 
+@JsonIgnoreProperties({ "hibernateLazyInitializer", "handler" })
 @Entity
 @Table(name = "order_items")
 public class OrderItem {
@@ -18,7 +20,7 @@ public class OrderItem {
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "order_id", nullable = false)
-    @JsonIgnore // 👈 evita la recursión Order -> items -> order -> ...
+    @JsonIgnore // evita la recursión Order -> items -> order -> ...
     private Order order;
 
     @Column(name = "cantidad", nullable = false)
