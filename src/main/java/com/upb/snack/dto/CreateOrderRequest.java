@@ -1,4 +1,3 @@
-// src/main/java/com/upb/snack/dto/CreateOrderRequest.java
 package com.upb.snack.dto;
 
 import java.util.List;
@@ -8,6 +7,12 @@ public class CreateOrderRequest {
     private Long userId;
     private Long aulaId;
     private List<Item> items;
+
+    /**
+     * Código de descuento opcional.
+     * Si es null o vacío, no se aplica ningún descuento.
+     */
+    private String discountCode;
 
     public static class Item {
         private Long menuItemId;
@@ -52,5 +57,13 @@ public class CreateOrderRequest {
 
     public void setItems(List<Item> items) {
         this.items = items;
+    }
+
+    public String getDiscountCode() {
+        return discountCode;
+    }
+
+    public void setDiscountCode(String discountCode) {
+        this.discountCode = discountCode;
     }
 }

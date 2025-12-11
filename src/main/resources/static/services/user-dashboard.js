@@ -24,12 +24,29 @@ document.addEventListener("DOMContentLoaded", () => {
   // Modal carrito
   const cartModal = document.getElementById("cartModal");
   const cartModalListEl = document.getElementById("cartModalList");
-  const cartModalTotalEl = document.getElementById("cartModalTotal");
+  const cartModalTotalOriginalEl = document.getElementById("cartModalTotalOriginal");
+  const cartModalTotalOriginalWrapper = document.getElementById("cartModalTotalOriginalWrapper");
+  const cartModalTotalDiscountedWrapper = document.getElementById("cartModalTotalDiscountedWrapper");
+  const cartModalTotalDiscountedEl = document.getElementById("cartModalTotalDiscounted");
   const cartModalStatusEl = document.getElementById("cartModalStatus");
   const closeCartModalBtn = document.getElementById("closeCartModalBtn");
   const cartModalCheckoutBtn = document.getElementById("cartModalCheckoutBtn");
 
+  // descuento
+  const toggleDiscountBtn = document.getElementById("toggleDiscountBtn");
+  const discountForm = document.getElementById("discountForm");
+  const discountCodeInput = document.getElementById("discountCodeInput");
+  const applyDiscountBtn = document.getElementById("applyDiscountBtn");
+
   let cart = [];
+
+  // estado descuento en front
+  let discount = {
+    code: null,
+    percent: 20, // por defecto, pero se puede sobreescribir desde backend
+    amount: 0,
+    applied: false,
+  };
 
   // Aulas agrupadas: { "Edificio 1": { "1": [aulas piso1], "2": [...], ... }, ... }
   let aulasPorEdificio = {};
@@ -383,17 +400,38 @@ document.addEventListener("DOMContentLoaded", () => {
   // ====== render modal carrito ======
 
   function renderCartModal() {
-    if (!cartModalListEl || !cartModalTotalEl) return;
+    if (!cartModalListEl) return;
 
     cartModalListEl.innerHTML = "";
 
     if (cart.length === 0) {
       cartModalListEl.innerHTML =
         `<li class="cart-modal-item">Tu carrito está vacío.</li>`;
-      cartModalTotalEl.textContent = "0.00";
+
+      if (cartModalTotalOriginalEl) {
+        cartModalTotalOriginalEl.textContent = "0.00";
+      }
+      if (cartModalTotalOriginalWrapper) {
+        cartModalTotalOriginalWrapper.classList.remove("cart-total-old");
+      }
+      if (cartModalTotalDiscountedWrapper) {
+        cartModalTotalDiscountedWrapper.hidden = true;
+      }
+      if (cartModalTotalDiscountedEl) {
+        cartModalTotalDiscountedEl.textContent = "0.00";
+      }
+
+      // resetear descuento si se vacía el carrito
+      discount = {
+        code: null,
+        percent: 20,
+        amount: 0,
+        applied: false,
+      };
       return;
     }
 
+    // pintar items
     cart.forEach((item) => {
       const li = document.createElement("li");
       li.className = "cart-modal-item";
@@ -435,8 +473,107 @@ document.addEventListener("DOMContentLoaded", () => {
       cartModalListEl.appendChild(li);
     });
 
-    const total = cart.reduce((sum, i) => sum + i.precio * i.qty, 0);
-    cartModalTotalEl.textContent = total.toFixed(2);
+    // calcular totales
+    const subtotal = cart.reduce((sum, i) => sum + i.precio * i.qty, 0);
+    let total = subtotal;
+
+    if (discount.applied) {
+      discount.amount = Math.round(subtotal * (discount.percent / 100));
+      total = subtotal - discount.amount;
+      if (total < 0) total = 0;
+
+      if (cartModalTotalOriginalWrapper) {
+        cartModalTotalOriginalWrapper.classList.add("cart-total-old");
+      }
+      if (cartModalTotalDiscountedWrapper) {
+        cartModalTotalDiscountedWrapper.hidden = false;
+      }
+      if (cartModalTotalDiscountedEl) {
+        cartModalTotalDiscountedEl.textContent = total.toFixed(2);
+      }
+    } else {
+      if (cartModalTotalOriginalWrapper) {
+        cartModalTotalOriginalWrapper.classList.remove("cart-total-old");
+      }
+      if (cartModalTotalDiscountedWrapper) {
+        cartModalTotalDiscountedWrapper.hidden = true;
+      }
+    }
+
+    if (cartModalTotalOriginalEl) {
+      cartModalTotalOriginalEl.textContent = subtotal.toFixed(2);
+    }
+  }
+
+
+  // ====== DESCUENTO: aplicar código ======
+
+  async function handleApplyDiscount() {
+    if (cart.length === 0) {
+      setStatus("Tu carrito está vacío.", "error");
+      return;
+    }
+
+    const code = (discountCodeInput?.value || "").trim();
+    if (!code) {
+      setStatus("Ingresa un código de descuento.", "error");
+      return;
+    }
+
+    const subtotal = cart.reduce((sum, i) => sum + i.precio * i.qty, 0);
+    if (subtotal <= 0) {
+      setStatus("El subtotal debe ser mayor a cero.", "error");
+      return;
+    }
+
+    setStatus("Validando código...", "info");
+
+    try {
+      const res = await fetch(`${API_BASE}/orders/discount/preview`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          subtotal: Math.round(subtotal),
+          code,
+        }),
+      });
+
+      if (!res.ok) {
+        const errText = await res.text().catch(() => "");
+        throw new Error(errText || "No se pudo validar el código.");
+      }
+
+      const data = await res.json();
+
+      if (!data.valid) {
+        discount = {
+          code: null,
+          percent: 20,
+          amount: 0,
+          applied: false,
+        };
+        setStatus(data.message || "Código inválido o expirado.", "error");
+        renderCartModal();
+        return;
+      }
+
+      discount.code = code;
+      discount.percent = data.percent ?? 20;
+      discount.applied = true;
+
+      setStatus(data.message || "Código aplicado correctamente.", "success");
+      renderCartModal();
+    } catch (err) {
+      console.error(err);
+      discount = {
+        code: null,
+        percent: 20,
+        amount: 0,
+        applied: false,
+      };
+      setStatus("Ocurrió un error al validar el código.", "error");
+      renderCartModal();
+    }
   }
 
   // abrir / cerrar modal carrito
@@ -451,6 +588,30 @@ document.addEventListener("DOMContentLoaded", () => {
   if (closeCartModalBtn && cartModal) {
     closeCartModalBtn.addEventListener("click", () => {
       cartModal.hidden = true;
+    });
+  }
+
+  // toggle formulario de código
+  if (toggleDiscountBtn && discountForm) {
+    toggleDiscountBtn.addEventListener("click", () => {
+      discountForm.hidden = !discountForm.hidden;
+      if (!discountForm.hidden && discountCodeInput) {
+        discountCodeInput.focus();
+      }
+    });
+  }
+
+
+  if (applyDiscountBtn) {
+    applyDiscountBtn.addEventListener("click", handleApplyDiscount);
+  }
+
+  if (discountCodeInput) {
+    discountCodeInput.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") {
+        e.preventDefault();
+        handleApplyDiscount();
+      }
     });
   }
 
@@ -493,6 +654,7 @@ document.addEventListener("DOMContentLoaded", () => {
         menuItemId: c.id,
         cantidad: c.qty,
       })),
+      discountCode: discount.applied ? discount.code : null,
     };
 
     setStatus("Enviando pedido...", "info");
@@ -518,6 +680,17 @@ document.addEventListener("DOMContentLoaded", () => {
       setStatus("Pedido enviado correctamente.", "success");
       cart = [];
       renderCart();
+
+      // limpiar estado de descuento y formulario
+      discount = {
+        code: null,
+        percent: 20,
+        amount: 0,
+        applied: false,
+      };
+      if (discountCodeInput) discountCodeInput.value = "";
+      if (discountForm) discountForm.hidden = true;
+
       return true;
     } catch (err) {
       console.error(err);

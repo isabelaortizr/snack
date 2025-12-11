@@ -110,18 +110,57 @@
         </ul>
 
         <div class="cart-modal-footer">
+            <!-- Total con viejo total tachado + nuevo total en amarillo -->
             <div class="cart-total-row">
                 <span>Total</span>
-                <span>Bs <span id="cartModalTotal">0.00</span></span>
-            </div>
-            <button
-                    type="button"
-                    class="btn btn-primary"
-                    id="cartModalCheckoutBtn"
+                <span class="cart-total-values">
+            <span id="cartModalTotalOriginalWrapper">
+                Bs <span id="cartModalTotalOriginal">0.00</span>
+            </span>
+            <span
+                    id="cartModalTotalDiscountedWrapper"
+                    class="cart-total-discounted"
+                    hidden
             >
-                Pedir
-            </button>
+                Bs <span id="cartModalTotalDiscounted">0.00</span>
+            </span>
+        </span>
+            </div>
+
+            <!-- fila descuento + botones -->
+            <div class="cart-discount-row">
+                <!-- Este es el "mini formulario" que se muestra/oculta -->
+                <div id="discountForm" class="discount-form" hidden>
+                    <input
+                            type="text"
+                            id="discountCodeInput"
+                            placeholder="Código de descuento"
+                            autocomplete="off"
+                    />
+                    <button type="button" class="btn btn-secondary" id="applyDiscountBtn">
+                        Aplicar
+                    </button>
+                </div>
+
+                <div class="cart-actions">
+                    <button
+                            type="button"
+                            class="btn btn-ghost"
+                            id="toggleDiscountBtn"
+                    >
+                        Agregar código de descuento
+                    </button>
+                    <button
+                            type="button"
+                            class="btn btn-primary"
+                            id="cartModalCheckoutBtn"
+                    >
+                        Pedir
+                    </button>
+                </div>
+            </div>
         </div>
+
 
         <p id="cartModalStatus" class="status-message" hidden></p>
     </div>

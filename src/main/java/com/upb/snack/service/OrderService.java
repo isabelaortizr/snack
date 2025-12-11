@@ -26,16 +26,26 @@ public class OrderService {
     private final AulaRepository aulaRepository;
     private final MenuRepository menuRepository;
 
+    /**
+     * Servicio que gestiona los códigos de verificación/descuento.
+     * Debe exponer al menos:
+     *  - boolean isValid(String code)
+     *  - void markCodeAsUsed(String code)
+     */
+    private final VerificationCodeService verificationCodeService;
+
     public OrderService(
             OrderRepository orderRepository,
             UserRepository userRepository,
             AulaRepository aulaRepository,
-            MenuRepository menuRepository
+            MenuRepository menuRepository,
+            VerificationCodeService verificationCodeService
     ) {
         this.orderRepository = orderRepository;
         this.userRepository = userRepository;
         this.aulaRepository = aulaRepository;
         this.menuRepository = menuRepository;
+        this.verificationCodeService = verificationCodeService;
     }
 
     public List<Order> getAllOrders() {
@@ -53,6 +63,8 @@ public class OrderService {
 
     /**
      * Crea un nuevo pedido en estado PENDIENTE a partir del carrito.
+     * Si se envía un discountCode válido, aplica un 20% de descuento
+     * sobre el subtotal del pedido.
      */
     public Order createOrder(CreateOrderRequest request) {
         CreateOrderRequest safeRequest =
@@ -78,7 +90,7 @@ public class OrderService {
             throw new IllegalArgumentException("La orden debe tener al menos un item.");
         }
 
-        // 2. Crear Order
+        // 2. Crear Order base
         Order order = new Order();
         order.setUser(user);
         order.setAula(aula);
@@ -87,9 +99,9 @@ public class OrderService {
         order.setCreatedAt(LocalDateTime.now());
 
         List<OrderItem> items = new ArrayList<>();
-        int total = 0;
+        int subtotal = 0;
 
-        // 3. Crear OrderItem por cada item del request
+        // 3. Crear OrderItem por cada item del request y calcular subtotal
         for (CreateOrderRequest.Item itemReq : safeRequest.getItems()) {
             Long menuItemId = Objects.requireNonNull(
                     itemReq.getMenuItemId(),
@@ -111,23 +123,51 @@ public class OrderService {
             double rawPrecio = menu.getPrecio() == null ? 0.0 : menu.getPrecio();
             int precioItem = (int) Math.round(rawPrecio);
 
-            int subtotal = precioItem * cantidad;
+            int itemSubtotal = precioItem * cantidad;
 
             OrderItem orderItem = new OrderItem();
             orderItem.setMenuItem(menu);
             orderItem.setOrder(order);
             orderItem.setCantidad(cantidad);
             orderItem.setPrecioItem(precioItem);
-            orderItem.setSubtotal(subtotal);
+            orderItem.setSubtotal(itemSubtotal);
 
             items.add(orderItem);
-            total += subtotal;
+            subtotal += itemSubtotal;
+        }
+
+        // 4. Aplicar descuento si se envió un código válido
+        String discountCode = safeRequest.getDiscountCode();
+        int discountAmount = 0;
+
+        if (discountCode != null && !discountCode.isBlank()) {
+            boolean valido = verificationCodeService.isValid(discountCode);
+
+            if (!valido) {
+                throw new IllegalArgumentException("Código de descuento inválido o expirado.");
+            }
+
+            // 20% de descuento sobre el subtotal
+            discountAmount = (int) Math.round(subtotal * 0.20);
+
+            // Marcamos el código como usado para que no se reutilice
+            verificationCodeService.markCodeAsUsed(discountCode);
+
+            // Si luego agregas campos en Order para guardar el código / monto,
+            // aquí sería el lugar para setearlos.
+            // order.setDiscountCode(discountCode);
+            // order.setDiscountAmount(discountAmount);
+        }
+
+        int total = subtotal - discountAmount;
+        if (total < 0) {
+            total = 0;
         }
 
         order.setTotal(total);
         order.setItems(items);
 
-        // 4. Guardar (cascade = ALL en items)
+        // 5. Guardar (cascade = ALL en items)
         return orderRepository.save(order);
     }
 
