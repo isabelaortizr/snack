@@ -6,12 +6,37 @@
   padding: 0;
 }
 
-/* Fondo general beige ocupando toda la pantalla */
+/* =========================
+   Paleta (del CSS anterior)
+   ========================= */
+:root {
+  --app-bg: #F5F7FB;
+  --panel-bg: #FFFFFF;
+
+  --primary: #00665B;      /* verde petróleo */
+  --primary-hover: #005148;
+  --accent: #B3D823;       /* verde lima */
+
+  --text-main: #081B33;    /* azul muy oscuro */
+  --text-muted: #6B7280;   /* gris medio */
+
+  --radius-lg: 32px;
+  --radius-md: 24px;
+
+  --shadow-panel: 0 18px 40px rgba(8, 27, 51, 0.08);
+  --shadow-card: 0 10px 26px rgba(8, 27, 51, 0.05);
+  --transition-fast: 0.2s ease-out;
+}
+
+/* Fondo general: limpio, con un toque de gradiente tipo "topbar" pero suave */
 body {
   font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-  background-color: #f5eee5; /* beige claro */
-  color: #3b2a24;
   min-height: 100vh;
+  color: var(--text-main);
+  background:
+    radial-gradient(900px 500px at 15% 20%, rgba(179, 216, 35, 0.18), transparent 55%),
+    radial-gradient(900px 500px at 90% 10%, rgba(0, 102, 91, 0.20), transparent 55%),
+    var(--app-bg);
 }
 
 /* Contenedor raíz: ocupa todo y alinea el contenido */
@@ -22,16 +47,18 @@ body {
   justify-content: center;
 }
 
-/* Layout ancho, sin bloque detrás */
+/* Layout ancho, sin bloque detrás, pero con “isla” suave */
 .entry-panel {
   display: flex;
   gap: 4rem;
   width: 100%;
   max-width: 1400px;
   padding: 3rem 5rem;
-  background: transparent;
-  border: none;
-  box-shadow: none;
+  background: rgba(255, 255, 255, 0.55);
+  border: 1px solid rgba(148, 163, 184, 0.25);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-panel);
+  backdrop-filter: blur(10px);
 }
 
 /* Lado izquierdo: título + texto */
@@ -47,14 +74,14 @@ body {
   font-weight: 800;
   letter-spacing: 0.08em;
   margin-bottom: 1.6rem;
-  color: #3b2a24;
+  color: var(--text-main);
 }
 
 .entry-text {
   max-width: 420px;
   font-size: 1.05rem;
   line-height: 1.5;
-  color: #5b4335;
+  color: var(--text-muted);
 }
 
 /* Lado derecho: solo la tarjeta del login/registro */
@@ -69,18 +96,31 @@ body {
   padding: 0;
 }
 
-/* === Login card beige/rojo === */
-
+/* =========================
+   Login card: estilo “panel”
+   ========================= */
 .login-card {
-  background: #fffaf3;
-  border-radius: 24px;
-  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.2);
+  background: var(--panel-bg);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-panel);
   width: 100%;
   max-width: 360px;
   padding: 2rem 1.75rem 2.25rem;
-  border: 1px solid rgba(0, 0, 0, 0.06);
+  border: 1px solid rgba(148, 163, 184, 0.25);
+  position: relative;
+  overflow: hidden;
 }
 
+/* detalle decorativo arriba, como mini topbar */
+.login-card::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: 10px;
+  background: linear-gradient(90deg, var(--primary) 0%, var(--accent) 100%);
+}
+
+/* Brand */
 .brand {
   text-align: center;
   margin-bottom: 1.3rem;
@@ -90,19 +130,20 @@ body {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  padding: 0.4rem 1.2rem;
+  padding: 0.45rem 1.2rem;
   border-radius: 999px;
-  background: #b11927; /* rojo fuerte */
-  color: #fffaf3;
+  background: linear-gradient(90deg, var(--primary) 0%, var(--accent) 100%);
+  color: #FFFFFF;
   font-weight: 800;
   letter-spacing: 0.16em;
   font-size: 0.9rem;
+  box-shadow: 0 10px 22px rgba(8, 27, 51, 0.18);
 }
 
 .brand-subtitle {
   margin-top: 0.7rem;
   font-size: 0.85rem;
-  color: #7b6254;
+  color: var(--text-muted);
 }
 
 .login-form {
@@ -113,18 +154,20 @@ body {
 
 .login-title {
   font-size: 1.3rem;
-  font-weight: 700;
+  font-weight: 800;
   margin-bottom: 0.3rem;
-  color: #3b2a24;
+  color: var(--text-main);
 }
 
+/* Toggle rol */
 .role-toggle {
   display: flex;
   gap: 0.75rem;
-  background: #f2e6d7;
+  background: rgba(8, 27, 51, 0.06);
   padding: 0.35rem;
   border-radius: 999px;
   margin-bottom: 0.2rem;
+  border: 1px solid rgba(148, 163, 184, 0.22);
 }
 
 .role-btn {
@@ -135,103 +178,124 @@ body {
   border-radius: 999px;
   font-size: 0.9rem;
   cursor: pointer;
-  color: #7b6254;
-  transition: all 0.18s ease;
+  color: var(--text-muted);
+  transition: background var(--transition-fast), transform var(--transition-fast), box-shadow var(--transition-fast), color var(--transition-fast);
+}
+
+.role-btn:hover {
+  background: rgba(0, 102, 91, 0.08);
+  color: var(--text-main);
 }
 
 .role-btn.active {
-  background: #b11927;
-  color: #fffaf3;
-  box-shadow: 0 8px 16px rgba(177, 25, 39, 0.35);
+  background: var(--text-main);
+  color: #FFFFFF;
+  box-shadow: 0 10px 20px rgba(8, 27, 51, 0.22);
 }
 
+/* Inputs */
 .input-field {
   border-radius: 999px;
-  border: 1px solid rgba(94, 55, 35, 0.2);
+  border: 1px solid rgba(148, 163, 184, 0.55);
   padding: 0.65rem 1rem;
   font-size: 0.95rem;
   outline: none;
-  background: #e8f0ff;
-  transition: border-color 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
+  background: #F3F6FF;
+  color: var(--text-main);
+  transition: border-color var(--transition-fast), box-shadow var(--transition-fast), background var(--transition-fast);
+}
+
+.input-field::placeholder {
+  color: rgba(107, 114, 128, 0.85);
 }
 
 .input-field:focus {
-  border-color: #b11927;
-  box-shadow: 0 0 0 3px rgba(177, 25, 39, 0.15);
-  background: #fffaf3;
+  border-color: rgba(0, 102, 91, 0.75);
+  box-shadow: 0 0 0 4px rgba(0, 102, 91, 0.12);
+  background: #FFFFFF;
 }
 
 .helper-text {
   font-size: 0.8rem;
-  color: #8a6c5b;
+  color: var(--text-muted);
   margin-top: 0.1rem;
 }
 
+/* Botón principal: look “btn-primary” del sistema */
 .primary-btn {
   margin-top: 0.4rem;
   border: none;
   width: 100%;
   border-radius: 999px;
-  padding: 0.7rem 1rem;
+  padding: 0.72rem 1rem;
   font-size: 0.98rem;
-  font-weight: 600;
+  font-weight: 700;
   cursor: pointer;
-  background: linear-gradient(135deg, #ff3140, #b11927);
-  color: #fffaf3;
-  box-shadow: 0 12px 24px rgba(177, 25, 39, 0.35);
-  transition: transform 0.12s ease, box-shadow 0.12s ease, filter 0.12s ease;
+  background: var(--text-main);
+  color: #FFFFFF;
+  box-shadow: 0 12px 24px rgba(8, 27, 51, 0.25);
+  transition: transform var(--transition-fast), box-shadow var(--transition-fast), filter var(--transition-fast), background var(--transition-fast);
 }
 
 .primary-btn:hover {
   transform: translateY(-1px);
-  box-shadow: 0 16px 30px rgba(177, 25, 39, 0.4);
+  box-shadow: 0 16px 30px rgba(8, 27, 51, 0.32);
   filter: brightness(1.03);
 }
 
 .primary-btn:active {
   transform: translateY(0);
-  box-shadow: 0 10px 20px rgba(177, 25, 39, 0.3);
+  box-shadow: 0 10px 20px rgba(8, 27, 51, 0.22);
 }
 
+/* Mensajes */
 .error-message {
   margin-top: 0.5rem;
   font-size: 0.85rem;
-  color: #b11927;
-  background: #ffe5e6;
-  border-radius: 12px;
-  padding: 0.4rem 0.7rem;
+  color: #DC2626;
+  background: rgba(220, 38, 38, 0.10);
+  border: 1px solid rgba(220, 38, 38, 0.22);
+  border-radius: 14px;
+  padding: 0.45rem 0.7rem;
 }
 
-/* Mensaje de éxito para registro */
 .success-message {
-  background: #e0f4e8;
-  color: #1a7f42;
+  background: rgba(22, 163, 74, 0.10);
+  color: #16A34A;
+  border: 1px solid rgba(22, 163, 74, 0.22);
 }
 
 /* Texto "¿No tienes cuenta?" */
 .switch-text {
   margin-top: 0.6rem;
   font-size: 0.82rem;
-  color: #7b6254;
+  color: var(--text-muted);
   text-align: center;
 }
 
 .link-btn {
   border: none;
   background: none;
-  color: #b11927;
-  font-weight: 600;
+  color: var(--primary);
+  font-weight: 700;
   cursor: pointer;
   padding: 0;
   margin-left: 0.3rem;
   text-decoration: underline;
+  text-decoration-color: rgba(0, 102, 91, 0.35);
+  transition: color var(--transition-fast), opacity var(--transition-fast);
+}
+
+.link-btn:hover {
+  color: var(--primary-hover);
+  opacity: 0.95;
 }
 
 /* Botón flecha volver */
 .back-btn {
   border: none;
   background: none;
-  color: #b11927;
+  color: var(--primary);
   font-size: 0.85rem;
   display: inline-flex;
   align-items: center;
@@ -239,6 +303,12 @@ body {
   cursor: pointer;
   margin-bottom: 0.4rem;
   padding: 0;
+  transition: opacity var(--transition-fast), transform var(--transition-fast);
+}
+
+.back-btn:hover {
+  opacity: 0.9;
+  transform: translateY(-1px);
 }
 
 /* Responsive */
@@ -261,4 +331,3 @@ body {
 .login-form[hidden] {
   display: none !important;
 }
-
